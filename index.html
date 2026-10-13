@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IT Schedule &amp; Time Off</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#0772bc; --brand-strong:#055a94; --on-brand:#ffffff;
+  --bg:#eef3f7; --surface:#ffffff; --ink:#14222e; --muted:#576877;
+  --line:#d3dde6; --soft:#e4eef6; --weekend:#f4f7fa; --today:#fff8e1;
+  --vac:#0772bc; --sick:#b45309; --pers:#7c3aed; --other:#52606d;
+  --danger:#b42318; --ok:#1f7a4d; --called:#be123c; --remote:#0f766e;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --brand:#3b97dc; --brand-strong:#62ade6; --on-brand:#06121c;
+    --bg:#0e1720; --surface:#15212c; --ink:#e5edf4; --muted:#95a6b5;
+    --line:#2a3a48; --soft:#1b2c3a; --weekend:#111b24; --today:#2a2512;
+    --vac:#4aa3e4; --sick:#f0a234; --pers:#a78bfa; --other:#9aa6b2;
+    --danger:#f47066; --ok:#4cc38a; --called:#fb7185; --remote:#2dd4bf;
+  }
+}
+:root[data-theme="dark"]{
+  --brand:#3b97dc; --brand-strong:#62ade6; --on-brand:#06121c;
+  --bg:#0e1720; --surface:#15212c; --ink:#e5edf4; --muted:#95a6b5;
+  --line:#2a3a48; --soft:#1b2c3a; --weekend:#111b24; --today:#2a2512;
+  --vac:#4aa3e4; --sick:#f0a234; --pers:#a78bfa; --other:#9aa6b2;
+  --danger:#f47066; --ok:#4cc38a; --called:#fb7185; --remote:#2dd4bf;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 64px}
+.vh{position:absolute;left:-9999px}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px}
+.top h1{margin:0;font-size:clamp(1.6rem,3.2vw,2.1rem);line-height:1.15;letter-spacing:-.01em}
+.top p{margin:4px 0 0;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 14px;cursor:pointer;font-weight:700}
+.btn:hover{border-color:var(--brand)}
+.btn.primary{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.btn.primary:hover{background:var(--brand-strong)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted);font-weight:400}
+.btn.danger{color:var(--danger)}
+.btn.small{padding:4px 10px;font-size:.88rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+select.yr{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 10px}
+
+.notice{background:var(--soft);border-left:4px solid var(--brand);padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:.95rem}
+.notice[hidden]{display:none}
+
+/* Today band */
+.today{background:var(--brand);color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:20px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center}
+:root[data-theme="dark"] .today{color:#06121c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .today{color:#06121c}}
+.today .when{font-size:.95rem;opacity:.85}
+.today .headline{font-size:clamp(1.35rem,2.6vw,1.8rem);font-weight:700;line-height:1.25;margin-top:2px}
+.today .grp{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.today .grp[hidden]{display:none}
+.today .grp b{font-size:.9rem;margin-right:4px;min-width:62px}
+.today .grp span{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 12px;font-size:.92rem}
+.today .grp.out span{background:transparent;border:1px solid rgba(255,255,255,.45)}
+.today .ahead{text-align:right;min-width:150px}
+.today .ahead strong{display:block;font-size:2.4rem;line-height:1}
+.today .ahead small{font-size:.92rem;opacity:.85}
+@media (max-width:620px){.today{grid-template-columns:1fr}.today .ahead{text-align:left}}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 16px;font-weight:700;color:var(--muted);cursor:pointer;margin-bottom:-1px;font-size:1.02rem}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brand)}
+.tabpanel[hidden]{display:none}
+
+section.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:24px}
+.panel-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.panel-head h2{margin:0;font-size:1.2rem}
+.scroll{overflow-x:auto}
+
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:.88rem;color:var(--muted);font-weight:700}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.emp-name{font-weight:700}
+.emp-role{color:var(--muted);font-size:.9rem}
+.rowbtn{background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.rowbtn:hover .emp-name{color:var(--brand);text-decoration:underline}
+.bar{position:relative;height:10px;background:var(--soft);border-radius:999px;overflow:hidden;min-width:120px}
+.bar i{position:absolute;top:0;bottom:0;left:0}
+.bar .taken{background:var(--brand)}
+.bar .sched{background:repeating-linear-gradient(45deg,var(--brand) 0 3px,transparent 3px 6px);opacity:.75}
+.over{color:var(--danger);font-weight:700}
+.low{color:var(--sick);font-weight:700}
+
+/* Weekly schedule */
+.sched{min-width:900px}
+.sched th,.sched td{padding:6px}
+.sched th:first-child,.sched td:first-child{padding-left:16px;min-width:150px}
+.dayhead{background:none;border:1px solid transparent;border-radius:8px;width:100%;padding:4px 6px;cursor:pointer;text-align:center;color:var(--muted);font-weight:700;line-height:1.25}
+.dayhead b{display:block;font-size:1.05rem;color:var(--ink)}
+.dayhead:hover{border-color:var(--line)}
+.dayhead[aria-pressed="true"]{background:var(--soft);border-color:var(--brand)}
+.dayhead.is-today b{color:var(--brand)}
+.slot{width:100%;min-height:54px;border:1px solid var(--line);border-radius:8px;background:transparent;cursor:pointer;padding:6px 8px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px;font-size:.88rem}
+.slot:hover:not(:disabled){border-color:var(--brand)}
+.slot:disabled{cursor:default}
+.slot .t{font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+.slot .s{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.slot.work{background:var(--soft);border-left:4px solid var(--brand)}
+.slot.work.changed{border-left-style:dashed}
+.slot.off{color:var(--muted)}
+.slot.off .t{color:var(--muted);font-weight:400}
+.slot.pto{border-left:4px solid currentColor;background:var(--weekend)}
+.cov td{font-weight:700;color:var(--muted);text-align:center;font-size:.9rem}
+.cov td.zero{color:var(--danger)}
+.foot-note{padding:10px 18px;border-top:1px solid var(--line);font-size:.88rem;color:var(--muted)}
+
+/* Day timeline */
+.tl{min-width:720px;padding:12px 18px 18px}
+.tl-sum{margin:0 0 10px;color:var(--muted);font-size:.95rem}
+.tl-scale{position:relative;height:20px;margin-left:170px;font-size:.78rem;color:var(--muted)}
+.tl-scale span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.tl-row{display:grid;grid-template-columns:170px 1fr;align-items:center;min-height:32px}
+.tl-name{font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:12px}
+.tl-track{position:relative;height:24px;border-radius:4px;
+  background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px calc(100% / var(--h,12)))}
+.tl-bar{position:absolute;top:3px;bottom:3px;background:var(--brand);border-radius:4px;color:#fff;font-size:.76rem;padding:0 6px;overflow:hidden;white-space:nowrap;line-height:18px}
+:root[data-theme="dark"] .tl-bar{color:#06121c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tl-bar{color:#06121c}}
+.tl-bar.half{background:repeating-linear-gradient(45deg,var(--brand) 0 6px,var(--brand-strong) 6px 12px)}
+.tl-label{position:absolute;left:8px;top:0;line-height:24px;font-size:.82rem;color:var(--muted)}
+.tl-now{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--danger);z-index:1}
+
+/* Calendar */
+.cal-nav{display:flex;align-items:center;gap:6px}
+.cal-nav strong{min-width:150px;text-align:center}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));min-width:700px;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.cal .dow{padding:6px 8px;font-size:.85rem;color:var(--muted);font-weight:700;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cal .day{min-height:92px;padding:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:3px}
+.cal .day.wknd{background:var(--weekend)}
+.cal .day.pad{background:var(--weekend);opacity:.5}
+.cal .day.is-today{background:var(--today)}
+.cal .dnum{font-size:.85rem;color:var(--muted);display:flex;justify-content:space-between}
+.cal .dnum b{color:var(--ink)}
+.cal .cnt{font-size:.75rem;border-radius:999px;padding:0 6px;background:var(--soft);color:var(--ink)}
+.cal .cnt.hi{background:var(--danger);color:#fff}
+.chip{font-size:.78rem;line-height:1.3;padding:2px 6px;border-radius:4px;border-left:3px solid currentColor;background:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip span{color:var(--ink)}
+.t-Vacation{color:var(--vac)} .t-Sick{color:var(--sick)} .t-Personal{color:var(--pers)} .t-Other{color:var(--other)} .t-CalledOut{color:var(--called)} .t-Timeoff{color:var(--other)}
+.lock{padding:40px 24px;text-align:center}
+.lock h2{margin:8px 0 6px;font-size:1.3rem}
+.lock p{margin:0 auto;max-width:520px;color:var(--muted)}
+.lock .ic{font-size:2rem}
+[hidden]{display:none !important}
+.slot.work.remote{border-left-color:var(--remote)}
+.tl-bar.remote{background:var(--remote)}
+.pill.remote{color:var(--remote)}
+.pill.callout{color:var(--called)}
+.check{display:flex;gap:8px;align-items:center;font-weight:700;font-size:.92rem;margin-bottom:12px;cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.88rem;color:var(--muted);padding:10px 18px;border-top:1px solid var(--line)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;background:currentColor;margin-right:6px;vertical-align:middle}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 10px}
+.pill{display:inline-block;font-size:.82rem;font-weight:700;border-radius:999px;padding:1px 10px;border:1px solid currentColor}
+.note{color:var(--muted);font-size:.9rem;max-width:280px}
+.empty{padding:28px 18px;text-align:center;color:var(--muted)}
+.empty .btn{margin-top:10px}
+
+/* Dialogs */
+dialog{border:1px solid var(--line);border-radius:14px;padding:0;background:var(--surface);color:var(--ink);width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 32px)}
+dialog::backdrop{background:rgba(10,20,30,.45)}
+dialog form{padding:20px 22px}
+dialog h3{margin:0 0 14px;font-size:1.2rem}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-weight:700;font-size:.92rem}
+.field input,.field select,.field textarea,.hrow input,.row2 input[type=time]{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg)}
+.field small{color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:10px 12px 8px;margin:0 0 12px}
+legend{font-weight:700;font-size:.92rem;padding:0 4px}
+.hrow{display:grid;grid-template-columns:82px 1fr auto 1fr;gap:8px;align-items:center;margin-bottom:6px}
+.hrow input:disabled{opacity:.4}
+.hday{display:flex;gap:6px;align-items:center;font-weight:700;cursor:pointer}
+.hrow .to{color:var(--muted);font-size:.9rem}
+.choice label{display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer}
+.choice label[hidden],.field[hidden]{display:none}
+.dlg-actions{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:16px}
+.dlg-actions .right{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.warn{background:var(--today);border-radius:8px;padding:8px 10px;font-size:.9rem;margin-bottom:12px}
+.warn[hidden]{display:none}
+.err{color:var(--danger);font-size:.9rem;min-height:1.2em}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:8px;font-size:.95rem;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+@media (max-width:560px){.row2{grid-template-columns:1fr}.wrap{padding:16px 12px 48px}.hrow{grid-template-columns:70px 1fr auto 1fr;gap:6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>IT Department schedule</h1>
+      <p>Who's working, when, and who's out.</p>
+    </div>
+    <div class="actions">
+      <select id="yearSel" class="yr" aria-label="PTO year"></select>
+      <button class="btn" id="addEmpBtn" type="button">Add team member</button>
+      <button class="btn primary" id="logBtn" type="button">Log time off</button>
+    </div>
+  </header>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <div class="today" id="todayBand" aria-live="polite">
+    <div>
+      <div class="when" id="todayDate"></div>
+      <div class="headline" id="todayHeadline">Loading…</div>
+      <div class="grp" id="inGrp" hidden><b>On shift</b></div>
+      <div class="grp out" id="outGrp" hidden><b>Out</b></div>
+    </div>
+    <div class="ahead">
+      <strong id="aheadCount">–</strong>
+      <small>people out in the<br>next 14 days</small>
+    </div>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" id="tabSched" aria-controls="pSched" aria-selected="true" type="button">Schedule</button>
+    <button role="tab" id="tabPto" aria-controls="pPto" aria-selected="false" type="button">Time off</button>
+  </nav>
+
+  <!-- SCHEDULE -->
+  <div class="tabpanel" id="pSched" role="tabpanel" aria-labelledby="tabSched">
+    <section class="panel" aria-labelledby="wkH">
+      <div class="panel-head">
+        <h2 id="wkH">Weekly schedule</h2>
+        <div class="cal-nav">
+          <button class="btn ghost" id="prevW" type="button" aria-label="Previous week">‹</button>
+          <strong id="weekLabel"></strong>
+          <button class="btn ghost" id="nextW" type="button" aria-label="Next week">›</button>
+          <button class="btn" id="thisW" type="button">This week</button>
+        </div>
+      </div>
+      <div class="scroll" id="schedGrid"></div>
+      <div class="foot-note">Select any day to change hours or mark someone off, for just that date or every week. Use Edit weekly hours to change someone's hours and days all at once. A dashed edge means that day differs from their regular hours.</div>
+    </section>
+
+    <section class="panel" aria-labelledby="dayTitle">
+      <div class="panel-head">
+        <h2 id="dayTitle">Who's in</h2>
+      </div>
+      <div class="scroll"><div class="tl" id="timeline"></div></div>
+    </section>
+
+    <section class="panel" aria-labelledby="rmH">
+      <div class="panel-head">
+        <h2 id="rmH">Working remote</h2>
+        <div class="filters">
+          <select id="rfEmp" aria-label="Filter remote days by team member"><option value="">Everyone</option></select>
+          <button class="btn primary" id="rBtn" type="button">Log remote day</button>
+        </div>
+      </div>
+      <div class="scroll" id="remoteLog"></div>
+      <div class="foot-note">Remote days don't use PTO. They show on the weekly schedule and the Who's in timeline in teal.</div>
+    </section>
+  </div>
+
+  <!-- TIME OFF -->
+  <div class="tabpanel" id="pPto" role="tabpanel" aria-labelledby="tabPto" hidden>
+    <section class="panel lock" id="lockPanel">
+      <div class="ic" aria-hidden="true">🔒</div>
+      <h2 id="lockTitle">Checking your access…</h2>
+      <p id="lockMsg"></p>
+    </section>
+    <div id="ptoContent" hidden>
+    <section class="panel" aria-labelledby="balH">
+      <div class="panel-head">
+        <h2 id="balH">PTO balances</h2>
+        <span class="emp-role" id="balNote"></span>
+      </div>
+      <div class="scroll" id="balances"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="calH">
+      <div class="panel-head">
+        <h2 id="calH">Coverage calendar</h2>
+        <div class="cal-nav">
+          <button class="btn ghost" id="prevM" type="button" aria-label="Previous month">‹</button>
+          <strong id="calLabel"></strong>
+          <button class="btn ghost" id="nextM" type="button" aria-label="Next month">›</button>
+          <button class="btn" id="thisM" type="button">Today</button>
+        </div>
+      </div>
+      <div class="scroll"><div class="cal" id="cal"></div></div>
+      <div class="legend">
+        <span class="t-Vacation"><i></i><span style="color:var(--muted)">Vacation</span></span>
+        <span class="t-Sick"><i></i><span style="color:var(--muted)">Sick</span></span>
+        <span class="t-CalledOut"><i></i><span style="color:var(--muted)">Called Out</span></span>
+        <span class="t-Personal"><i></i><span style="color:var(--muted)">Personal</span></span>
+        <span class="t-Other"><i></i><span style="color:var(--muted)">Other</span></span>
+        <span>Red count = 3 or more people out that day</span>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="logH">
+      <div class="panel-head">
+        <h2 id="logH">Time off log</h2>
+        <div class="filters">
+          <select id="fEmp" aria-label="Filter by team member"><option value="">Everyone</option></select>
+          <select id="fType" aria-label="Filter by type">
+            <option value="">All types</option><option>Vacation</option><option>Sick</option><option>Called Out</option><option>Personal</option><option>Other</option>
+          </select>
+          <button class="btn" id="csvBtn" type="button">Export CSV</button>
+          <button class="btn primary" id="logForBtn" type="button">Log time off</button>
+        </div>
+      </div>
+      <div class="scroll" id="log"></div>
+    </section>
+    </div>
+
+  </div>
+</div>
+
+<!-- Team member dialog -->
+<dialog id="empDlg">
+  <form method="dialog" id="empForm">
+    <h3 id="empTitle">Add team member</h3>
+    <div class="field"><label for="eName">Name</label><input id="eName" required maxlength="80" autocomplete="off"></div>
+    <div class="field"><label for="eRole">Role</label><input id="eRole" maxlength="80" placeholder="e.g. Help desk, Network admin" autocomplete="off"></div>
+    <div class="field" id="allowField"><label for="eAllow">Annual PTO allowance (days)</label><input id="eAllow" type="number" min="0" max="365" step="0.5" value="15" required></div>
+    <fieldset>
+      <legend>Regular hours</legend>
+      <div id="eHours"></div>
+      <button class="btn small" id="copyMon" type="button">Copy Monday's hours to Tue–Fri</button>
+    </fieldset>
+    <div class="err" id="empErr"></div>
+    <div class="dlg-actions">
+      <button class="btn danger" id="empDel" type="button" hidden>Remove</button>
+      <div class="right">
+        <button class="btn ghost" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" id="empSave" value="save">Save team member</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<!-- Shift dialog -->
+<dialog id="shiftDlg">
+  <form method="dialog" id="shiftForm">
+    <h3 id="shiftTitle">Change hours</h3>
+    <p class="emp-role" id="shiftRegular" style="margin:-8px 0 12px"></p>
+    <div class="warn" id="shiftPto" hidden></div>
+    <fieldset class="choice">
+      <legend>Apply change to</legend>
+      <label><input type="radio" name="sscope" value="day" checked> <span id="scopeDay">Just this day</span></label>
+      <label><input type="radio" name="sscope" value="every"> <span id="scopeEvery">Every week</span></label>
+    </fieldset>
+    <fieldset class="choice">
+      <legend>Hours</legend>
+      <label id="regLabel"><input type="radio" name="smode" value="regular" checked> Regular hours</label>
+      <label><input type="radio" name="smode" value="custom"> <span id="customLbl">Different hours</span></label>
+      <label><input type="radio" name="smode" value="off"> Not working</label>
+    </fieldset>
+    <div class="row2" id="shiftTimes">
+      <div class="field"><label for="sStart">Start</label><input id="sStart" type="time"></div>
+      <div class="field"><label for="sEnd">End</label><input id="sEnd" type="time"></div>
+    </div>
+    <div class="field"><label for="sNote">Note (optional)</label><input id="sNote" maxlength="120" placeholder="e.g. On-call, covering for Sam, server migration" autocomplete="off"></div>
+    <div class="err" id="shiftErr"></div>
+    <div class="dlg-actions">
+      <div class="right">
+        <button class="btn ghost" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" value="save">Save hours</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<!-- Time off dialog -->
+<dialog id="logDlg">
+  <form method="dialog" id="logForm">
+    <h3 id="logTitle">Log time off</h3>
+    <div class="field"><label for="lEmp">Team member</label><select id="lEmp" required></select></div>
+    <div class="field"><label for="lType">Type</label>
+      <select id="lType"><option>Vacation</option><option>Sick</option><option>Called Out</option><option>Personal</option><option>Other</option></select></div>
+    <div class="row2">
+      <div class="field"><label for="lStart">First day off</label><input id="lStart" type="date" required></div>
+      <div class="field"><label for="lEnd">Last day off</label><input id="lEnd" type="date" required></div>
+    </div>
+    <div class="field"><label for="lDays">Days charged</label><input id="lDays" type="number" min="0.5" step="0.5" required>
+      <small>Counts weekdays automatically. Use 0.5 for a half day.</small></div>
+    <div class="warn" id="overlap" hidden></div>
+    <div class="field"><label for="lNote">Note (optional)</label><input id="lNote" maxlength="200" placeholder="e.g. On-call covered by Sam" autocomplete="off"></div>
+    <div class="err" id="logErr"></div>
+    <div class="dlg-actions">
+      <div class="right">
+        <button class="btn ghost" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn" value="again">Save and add another</button>
+        <button class="btn primary" value="save">Log time off</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="rmDlg">
+  <form method="dialog" id="rmForm">
+    <h3 id="rmTitle">Log remote day</h3>
+    <div class="field"><label for="rEmp">Team member</label><select id="rEmp" required></select></div>
+    <div class="row2">
+      <div class="field"><label for="rStart">First day</label><input id="rStart" type="date" required></div>
+      <div class="field"><label for="rEnd">Last day</label><input id="rEnd" type="date" required></div>
+    </div>
+    <label class="check"><input type="checkbox" id="rCalled"> Called out, working remote (unplanned)</label>
+    <div class="field"><label for="rNote">Note (optional)</label><input id="rNote" maxlength="200" placeholder="e.g. Car trouble, available on Teams" autocomplete="off"></div>
+    <small class="emp-role" style="display:block;margin-bottom:8px">Uses their scheduled hours for those days. Doesn't count against PTO.</small>
+    <div class="err" id="rmErr"></div>
+    <div class="dlg-actions">
+      <div class="right">
+        <button class="btn ghost" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn" value="again">Save and add another</button>
+        <button class="btn primary" value="save">Log remote day</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const DAY_KEYS=["mon","tue","wed","thu","fri","sat","sun"];
+  const DAY_LABEL={mon:"Mon",tue:"Tue",wed:"Wed",thu:"Thu",fri:"Fri",sat:"Sat",sun:"Sun"};
+  const JS_DAY=["sun","mon","tue","wed","thu","fri","sat"];
+  const DEFAULT_SCHED={mon:{start:"08:00",end:"16:30"},tue:{start:"08:00",end:"16:30"},wed:{start:"08:00",end:"16:30"},thu:{start:"08:00",end:"16:30"},fri:{start:"08:00",end:"16:30"},sat:null,sun:null};
+
+  const state={employees:[],entries:[],away:[],allowances:new Map(),isAdmin:false,accessKnown:false,shifts:[],remote:[],shiftMap:new Map(),year:new Date().getFullYear(),
+    calMonth:firstOfMonth(new Date()),weekStart:mondayOf(todayIso()),selDay:todayIso(),editingEmp:null,shiftCtx:null};
+  let db=null,downloads=null,canWrite=true,live=false;
+
+  /* ---------- dates & times ---------- */
+  function pad(n){return String(n).padStart(2,"0")}
+  function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+  function parse(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
+  function firstOfMonth(d){return new Date(d.getFullYear(),d.getMonth(),1)}
+  function todayIso(){return iso(new Date())}
+  function addDays(s,n){const d=parse(s);d.setDate(d.getDate()+n);return iso(d)}
+  function mondayOf(s){const d=parse(s);const off=(d.getDay()+6)%7;d.setDate(d.getDate()-off);return iso(d)}
+  function isWeekday(d){const w=d.getDay();return w!==0&&w!==6}
+  function bizDays(s,e){if(!s||!e||e<s)return 0;let d=parse(s),end=parse(e),n=0;while(d<=end){if(isWeekday(d))n++;d.setDate(d.getDate()+1)}return n}
+  function fmtDate(s){return parse(s).toLocaleDateString(undefined,{month:"short",day:"numeric"})}
+  function longDate(s){return parse(s).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"})}
+  function fmtRange(a,b){return a===b?fmtDate(a):fmtDate(a)+" – "+fmtDate(b)}
+  function fmtNum(n){return (Math.round(n*10)/10).toString()}
+  function toMin(t){const [h,m]=t.split(":").map(Number);return h*60+m}
+  function fmtTime(t){const [h,m]=t.split(":").map(Number);const o={hour:"numeric"};if(m)o.minute="2-digit";return new Date(2000,0,1,h,m).toLocaleTimeString(undefined,o)}
+  function fmtMin(m){m=((m%1440)+1440)%1440;return fmtTime(pad(Math.floor(m/60))+":"+pad(m%60))}
+  function fmtHours(h){return fmtTime(h.start)+" – "+fmtTime(h.end)}
+  function span(h){let a=toMin(h.start),b=toMin(h.end);if(b<=a)b+=1440;return [a,b]}
+  function durH(h){const [a,b]=span(h);return (b-a)/60}
+
+  /* ---------- ui helpers ---------- */
+  function el(tag,attrs,...kids){const e=document.createElement(tag);if(attrs)for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==="class")e.className=v;else if(k==="text")e.textContent=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?"":v)}for(const c of kids){if(c==null)continue;e.append(c)}return e}
+  let toastT;
+  function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),3000)}
+  function notice(msg){const n=$("notice");if(msg){n.textContent=msg;n.hidden=false}else n.hidden=true}
+  function empById(id){return state.employees.find(e=>e.id===id)}
+  function tc(t){return "t-"+String(t).replace(/[^A-Za-z]/g,"")}
+  function firstName(n){return (n||"").trim().split(/\s+/)[0]||n}
+  function sortedEmps(){return [...state.employees].sort((a,b)=>a.name.localeCompare(b.name))}
+
+  /* ---------- data layer ---------- */
+  async function write(fn){
+    if(!canWrite){toast("You have view-only access to this tracker.");return false}
+    try{await fn();return true}
+    catch(e){
+      const code=e&&e.code;
+      if(code==="invalid_argument"){canWrite=false;applyWriteState();notice("You can view this tracker but not change it. Ask the owner for Contributor access.")}
+      else if(code==="quota_exceeded"){toast("Storage is full. Remove old entries, then try again.")}
+      else if(code==="resource_exhausted"){toast("Too many changes at once. Wait a moment and try again.")}
+      else{toast("Couldn't save. Check your connection and try again.")}
+      return false;
+    }
+  }
+  const local={employees:[],entries:[],shifts:[],remote:[],allowances:new Map()};
+  function localId(){return Math.random().toString(36).slice(2,11)}
+  function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,12)}
+  function awayOf(x){return {id:x.id,employeeId:x.employeeId,start:x.start,end:x.end,partial:x.start===x.end&&Number(x.days)<1}}
+  const PTO="data/pto/entries",ALLOW="data/pto/allowances";
+  function syncLocal(){state.employees=[...local.employees];state.remote=[...local.remote];state.allowances=new Map(local.allowances);state.away=local.entries.map(awayOf);state.entries=[...local.entries];setShifts([...local.shifts]);renderYears();render()}
+  function setShifts(list){state.shifts=list;state.shiftMap=new Map(list.map(s=>[s.employeeId+"|"+s.date,s]))}
+
+  async function addEmployee(d,allowance){const id=newId();
+    if(live)return write(async()=>{await db.collection("employees").doc(id).set(d);if(state.isAdmin)await db.collection(ALLOW).doc(id).set({allowance})});
+    local.employees.push({id,...d});local.allowances.set(id,allowance);syncLocal();return true}
+  async function updateEmployee(id,d,allowance){
+    if(live)return write(async()=>{await db.collection("employees").doc(id).update(d);if(state.isAdmin&&allowance!=null)await db.collection(ALLOW).doc(id).set({allowance})});
+    Object.assign(local.employees.find(x=>x.id===id),d);if(allowance!=null)local.allowances.set(id,allowance);syncLocal();return true}
+  async function removeEmployee(id){
+    if(live){
+      const ents=state.entries.filter(x=>x.employeeId===id),shs=state.shifts.filter(x=>x.employeeId===id),rms=state.remote.filter(x=>x.employeeId===id);
+      return write(async()=>{for(const x of ents){await db.collection(PTO).doc(x.id).delete();await db.collection("away").doc(x.id).delete()}await db.collection(ALLOW).doc(id).delete();for(const r of rms)await db.collection("remote").doc(r.id).delete();for(const s of shs)await db.collection("shifts").doc(s.id).delete();await db.collection("employees").doc(id).delete()});
+    }
+    local.employees=local.employees.filter(x=>x.id!==id);local.entries=local.entries.filter(x=>x.employeeId!==id);local.shifts=local.shifts.filter(x=>x.employeeId!==id);local.remote=local.remote.filter(x=>x.employeeId!==id);syncLocal();return true;
+  }
+  async function addEntry(d){const id=newId(),a=awayOf({id,...d});delete a.id;
+    if(live)return write(async()=>{await db.collection(PTO).doc(id).set(d);await db.collection("away").doc(id).set(a)});
+    local.entries.push({id,...d});syncLocal();return true}
+  async function removeEntry(id){if(live)return write(async()=>{await db.collection(PTO).doc(id).delete();await db.collection("away").doc(id).delete()});local.entries=local.entries.filter(x=>x.id!==id);syncLocal();return true}
+  async function addRemote(d){if(live)return write(()=>db.collection("remote").add(d));local.remote.push({id:localId(),...d});syncLocal();return true}
+  async function removeRemote(id){if(live)return write(()=>db.collection("remote").doc(id).delete());local.remote=local.remote.filter(x=>x.id!==id);syncLocal();return true}
+  function shiftId(empId,date){return empId+"--"+date}
+  async function setShift(empId,date,d){const id=shiftId(empId,date);const body={employeeId:empId,date,...d};
+    if(live)return write(()=>db.collection("shifts").doc(id).set(body));
+    local.shifts=local.shifts.filter(s=>s.id!==id);local.shifts.push({id,...body});syncLocal();return true}
+  async function clearShift(empId,date){const id=shiftId(empId,date);
+    if(live)return write(()=>db.collection("shifts").doc(id).delete());
+    local.shifts=local.shifts.filter(s=>s.id!==id);syncLocal();return true}
+
+  /* ---------- computations ---------- */
+  function schedOf(emp){return emp.schedule||DEFAULT_SCHED}
+  function regularFor(emp,date){const s=schedOf(emp)[JS_DAY[parse(date).getDay()]];return s&&s.start&&s.end?s:null}
+  function dayStatus(emp,date){
+    const aw=state.away.find(x=>x.employeeId===emp.id&&x.start<=date&&x.end>=date)||null;
+    const pto=aw?{...aw,type:ptoType(aw.id)}:null;
+    const ov=state.shiftMap.get(emp.id+"|"+date)||null;
+    const hours=ov?(ov.off?null:{start:ov.start,end:ov.end}):regularFor(emp,date);
+    const partial=!!pto&&!!pto.partial;
+    const out=!!pto&&!partial;
+    const remote=state.remote.find(x=>x.employeeId===emp.id&&x.start<=date&&x.end>=date)||null;
+    return {pto,ov,hours,partial,out,remote,working:!!hours&&!out};
+  }
+  function workingNow(){
+    const now=new Date(),t=iso(now),m=now.getHours()*60+now.getMinutes(),y=addDays(t,-1),res=[];
+    for(const emp of sortedEmps()){
+      const st=dayStatus(emp,t);
+      if(st.working){const [a,b]=span(st.hours);if(m>=a&&m<b){res.push({emp,until:st.hours.end,remote:!!st.remote});continue}}
+      const sy=dayStatus(emp,y);
+      if(sy.working){const [a,b]=span(sy.hours);if(b>1440&&m<b-1440)res.push({emp,until:sy.hours.end,remote:!!sy.remote})}
+    }
+    return res;
+  }
+  function ptoType(id){const e=state.entries.find(x=>x.id===id);return e?e.type:"Time off"}
+  function allowanceOf(emp){return state.allowances.has(emp.id)?state.allowances.get(emp.id):(Number(emp.allowance)||0)}
+  function entriesForYear(y){return state.entries.filter(x=>x.start&&x.start.slice(0,4)===String(y))}
+  function outOn(d){return state.entries.filter(x=>x.start<=d&&x.end>=d&&empById(x.employeeId))}
+  function balanceFor(emp){
+    const t=todayIso();let taken=0,sched=0;
+    for(const x of entriesForYear(state.year)){if(x.employeeId!==emp.id)continue;const d=Number(x.days)||0;if(x.end<t)taken+=d;else sched+=d}
+    const allow=Number(allowanceOf(emp))||0;return {allow,taken,sched,remaining:allow-taken-sched};
+  }
+
+  /* ---------- render ---------- */
+  function render(){renderAccess();renderToday();renderSchedule();renderTimeline();renderBalances();renderCalendar();renderLog();renderEmpSelects();renderRemote();applyWriteState()}
+
+  function renderToday(){
+    const t=todayIso();
+    $("todayDate").textContent=longDate(t);
+    const inG=$("inGrp"),outG=$("outGrp");
+    inG.replaceChildren(el("b",{text:"On shift"}));outG.replaceChildren(el("b",{text:"Out"}));
+    if(!state.employees.length){$("todayHeadline").textContent="Add your team to start building the schedule.";inG.hidden=outG.hidden=true;$("aheadCount").textContent="0";return}
+    const now=workingNow();
+    const out=state.away.filter(x=>x.start<=t&&x.end>=t&&!x.partial&&empById(x.employeeId)).map(x=>({...x,type:ptoType(x.id)}));
+    const later=sortedEmps().filter(e=>{const st=dayStatus(e,t);return st.working&&toMin(st.hours.start)>new Date().getHours()*60+new Date().getMinutes()});
+    let h=now.length?`${now.length} ${now.length===1?"person is":"people are"} on shift now.`:"No one is on shift right now.";
+    if(!now.length&&later.length)h+=` Next in: ${firstName(later[0].name)} at ${fmtTime(dayStatus(later[0],t).hours.start)}.`;
+    $("todayHeadline").textContent=h;
+    now.forEach(x=>inG.append(el("span",{text:`${x.emp.name}${x.remote?" (remote)":""} until ${fmtTime(x.until)}`})));
+    out.forEach(x=>{const e=empById(x.employeeId);outG.append(el("span",{text:`${e.name}${x.type!=="Time off"?", "+x.type:""}${x.end>t?" until "+fmtDate(x.end):""}`}))});
+    inG.hidden=!now.length;outG.hidden=!out.length;
+    const end=addDays(t,14);
+    $("aheadCount").textContent=new Set(state.away.filter(x=>x.start<=end&&x.end>=t&&empById(x.employeeId)).map(x=>x.employeeId)).size;
+  }
+
+  function renderSchedule(){
+    const box=$("schedGrid");box.replaceChildren();
+    const days=[...Array(7)].map((_,i)=>addDays(state.weekStart,i));
+    $("weekLabel").textContent=fmtDate(days[0])+" – "+fmtDate(days[6]);
+    if(!state.employees.length){box.append(el("div",{class:"empty"},el("div",{text:"No team members yet. Add someone and set their regular hours."}),el("button",{class:"btn primary wbtn",type:"button",text:"Add team member",onclick:()=>openEmp(null)})));return}
+    const t=todayIso();
+    const tbl=el("table",{class:"sched"});
+    const hr=el("tr",null,el("th",{text:"Team member"}));
+    days.forEach(d=>{const dt=parse(d);hr.append(el("th",null,el("button",{class:"dayhead"+(d===t?" is-today":""),type:"button","aria-pressed":String(d===state.selDay),"aria-label":`Show who's in on ${longDate(d)}`,onclick:()=>{state.selDay=d;renderSchedule();renderTimeline()}},
+      document.createTextNode(dt.toLocaleDateString(undefined,{weekday:"short"})),el("b",{text:String(dt.getDate())}))))});
+    hr.append(el("th",{class:"num",text:"Hours"}));
+    tbl.append(el("thead",null,hr));
+    const tb=el("tbody");const counts=days.map(()=>0);let teamHrs=0;
+    for(const emp of sortedEmps()){
+      const tr=el("tr",null,el("td",null,el("button",{class:"rowbtn",type:"button","aria-label":`Edit ${emp.name}'s regular hours`,onclick:()=>openEmp(emp.id)},el("div",{class:"emp-name",text:emp.name}),emp.role?el("div",{class:"emp-role",text:emp.role}):null),
+        el("div",null,el("button",{class:"btn small wbtn",type:"button",style:"margin-top:4px",text:"Edit weekly hours","aria-label":`Edit ${emp.name}'s weekly hours and days`,onclick:()=>openEmp(emp.id,true)}))));
+      let hrs=0;
+      days.forEach((d,i)=>{
+        const st=dayStatus(emp,d);let cls,kids;
+        if(st.out&&(st.hours||isWeekday(parse(d)))){cls="slot pto "+tc(st.pto.type);kids=[el("span",{class:"t",text:"Out"})];if(st.pto.type!=="Time off")kids.push(el("span",{class:"s",text:st.pto.type}))}
+        else if(st.working){
+          cls="slot work"+(st.ov?" changed":"")+(st.remote?" remote":"");counts[i]++;hrs+=durH(st.hours)*(st.partial?0.5:1);
+          kids=[el("span",{class:"t",text:fmtHours(st.hours)})];
+          if(st.remote)kids.push(el("span",{class:"s",text:st.remote.calledOut?"Called out, remote":"Remote"}));
+          if(st.partial)kids.push(el("span",{class:"s",text:"Half day PTO"}));
+          if(st.ov)kids.push(el("span",{class:"s",text:st.ov.note||"Changed hours"}));
+        }else{cls="slot off";kids=[el("span",{class:"t",text:"Off"})];if(st.ov&&st.ov.note)kids.push(el("span",{class:"s",text:st.ov.note}))}
+        const label=`${emp.name}, ${longDate(d)}: ${kids.map(k=>k.textContent).join(", ")}. Change hours.`;
+        tr.append(el("td",{class:"cell"},el("button",{class:cls+" wbtn",type:"button","aria-label":label,onclick:()=>openShift(emp.id,d)},...kids)));
+      });
+      teamHrs+=hrs;
+      tr.append(el("td",{class:"num",text:fmtNum(hrs)}));tb.append(tr);
+    }
+    const cov=el("tr",{class:"cov"},el("td",{style:"text-align:left",text:"Working"}));
+    counts.forEach((c,i)=>cov.append(el("td",{class:isWeekday(parse(days[i]))&&!c?"zero":null,text:String(c)})));
+    cov.append(el("td",{class:"num",text:fmtNum(teamHrs)}));
+    tb.append(cov);tbl.append(tb);box.append(tbl);
+  }
+
+  function renderTimeline(){
+    const box=$("timeline");box.replaceChildren();
+    const d=state.selDay,t=todayIso();
+    $("dayTitle").textContent=d===t?"Who's in today":`Who's in on ${longDate(d)}`;
+    if(!state.employees.length){box.append(el("p",{class:"tl-sum",text:"Add team members to see the day's coverage."}));return}
+    const rows=sortedEmps().map(emp=>({emp,st:dayStatus(emp,d)}));
+    const work=rows.filter(r=>r.st.working);
+    let lo=1440,hi=0;work.forEach(r=>{const [a,b]=span(r.st.hours);lo=Math.min(lo,a);hi=Math.max(hi,Math.min(b,1440))});
+    if(!work.length){lo=7*60;hi=19*60}
+    lo=Math.max(0,Math.floor(lo/60)*60-60);hi=Math.min(1440,Math.ceil(hi/60)*60+60);
+    if(hi-lo<600){hi=Math.min(1440,lo+600);lo=Math.max(0,hi-600)}
+    const range=hi-lo,hrsN=range/60,pct=m=>((m-lo)/range*100);
+    if(work.length){const a=Math.min(...work.map(r=>span(r.st.hours)[0])),b=Math.max(...work.map(r=>span(r.st.hours)[1]));
+      box.append(el("p",{class:"tl-sum",text:`${work.length} of ${rows.length} working. Coverage from ${fmtMin(a)} to ${fmtMin(b)}.`}))}
+    else box.append(el("p",{class:"tl-sum",text:"No one is scheduled this day."}));
+    const scale=el("div",{class:"tl-scale","aria-hidden":"true"});const step=hrsN>12?2:1;
+    for(let h=lo/60;h<=hi/60;h+=step){scale.append(el("span",{style:`left:${pct(h*60)}%`,text:fmtMin(h*60).replace(":00","")}))}
+    box.append(scale);
+    const now=new Date(),nowM=now.getHours()*60+now.getMinutes();
+    for(const {emp,st} of rows){
+      const track=el("div",{class:"tl-track",style:`--h:${hrsN}`});
+      if(st.working){const [a,b]=span(st.hours);const l=pct(Math.max(a,lo)),w=pct(Math.min(b,hi))-l;
+        track.append(el("div",{class:"tl-bar"+(st.partial?" half":"")+(st.remote?" remote":""),style:`left:${l}%;width:${w}%`,title:fmtHours(st.hours),text:fmtHours(st.hours)+(st.remote?" (remote)":"")+(st.partial?" (half day PTO)":"")}))}
+      else if(st.out&&st.pto)track.append(el("span",{class:"tl-label",text:st.pto.type==="Time off"?"Out":`Out, ${st.pto.type}`}));
+      else track.append(el("span",{class:"tl-label",text:"Off"}));
+      if(d===t&&nowM>=lo&&nowM<=hi)track.append(el("div",{class:"tl-now",style:`left:${pct(nowM)}%`,title:"Now"}));
+      box.append(el("div",{class:"tl-row"},el("div",{class:"tl-name",text:emp.name}),track));
+    }
+  }
+
+  function renderAccess(){
+    $("ptoContent").hidden=!state.isAdmin;$("lockPanel").hidden=state.isAdmin;
+    $("logBtn").hidden=$("yearSel").hidden=!state.isAdmin;
+    if(!state.isAdmin){
+      $("lockTitle").textContent=state.accessKnown?"Time off is restricted to managers":"Checking your access…";
+      $("lockMsg").textContent=state.accessKnown?"PTO balances and the time off log are only visible to people with Editor access to this tracker. The Schedule tab shows when teammates are out. Ask the tracker's owner if you need access.":"";
+    }
+  }
+  function renderBalances(){
+    const box=$("balances");box.replaceChildren();
+    $("balNote").textContent=`Calendar year ${state.year}`;
+    if(!state.employees.length){box.append(el("div",{class:"empty"},el("div",{text:"No team members yet."}),el("button",{class:"btn primary wbtn",type:"button",text:"Add team member",onclick:()=>openEmp(null)})));return}
+    const tbl=el("table");
+    tbl.append(el("thead",null,el("tr",null,el("th",{text:"Team member"}),el("th",{class:"num",text:"Allowance"}),el("th",{class:"num",text:"Taken"}),el("th",{class:"num",text:"Scheduled"}),el("th",{class:"num",text:"Remaining"}),el("th",{text:"Used"}))));
+    const tb=el("tbody");
+    for(const emp of sortedEmps()){
+      const b=balanceFor(emp);
+      const pT=b.allow?Math.min(100,b.taken/b.allow*100):0,pS=b.allow?Math.min(100-pT,b.sched/b.allow*100):0;
+      const bar=el("div",{class:"bar",role:"img","aria-label":`${fmtNum(b.taken+b.sched)} of ${fmtNum(b.allow)} days used or scheduled`},el("i",{class:"taken",style:`width:${pT}%`}),el("i",{class:"sched",style:`left:${pT}%;width:${pS}%`}));
+      const rc=b.remaining<0?"num over":(b.allow&&b.remaining<=2?"num low":"num");
+      tb.append(el("tr",null,
+        el("td",null,el("button",{class:"rowbtn",type:"button",onclick:()=>openEmp(emp.id),"aria-label":`Edit ${emp.name}`},el("div",{class:"emp-name",text:emp.name}),emp.role?el("div",{class:"emp-role",text:emp.role}):null)),
+        el("td",{class:"num",text:fmtNum(b.allow)}),el("td",{class:"num",text:fmtNum(b.taken)}),el("td",{class:"num",text:fmtNum(b.sched)}),
+        el("td",{class:rc,text:fmtNum(b.remaining)}),el("td",null,bar)));
+    }
+    tbl.append(tb);box.append(tbl);
+  }
+
+  function renderCalendar(){
+    const cal=$("cal");cal.replaceChildren();const m=state.calMonth;
+    $("calLabel").textContent=m.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+    for(const d of ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"])cal.append(el("div",{class:"dow",text:d}));
+    const lead=(m.getDay()+6)%7;for(let i=0;i<lead;i++)cal.append(el("div",{class:"day pad","aria-hidden":"true"}));
+    const days=new Date(m.getFullYear(),m.getMonth()+1,0).getDate(),t=todayIso();
+    for(let n=1;n<=days;n++){
+      const d=new Date(m.getFullYear(),m.getMonth(),n),di=iso(d),wk=isWeekday(d),out=wk?outOn(di):[];
+      const cell=el("div",{class:"day"+(wk?"":" wknd")+(di===t?" is-today":"")},
+        el("div",{class:"dnum"},di===t?el("b",{text:String(n)}):el("span",{text:String(n)}),out.length?el("span",{class:"cnt"+(out.length>=3?" hi":""),text:out.length+" out"}):null));
+      out.slice(0,3).forEach(x=>{const e=empById(x.employeeId);cell.append(el("div",{class:"chip "+tc(x.type),title:`${e.name}: ${x.type}`},el("span",{text:firstName(e.name)})))});
+      if(out.length>3)cell.append(el("div",{class:"emp-role",style:"font-size:.75rem",text:`+${out.length-3} more`}));
+      cal.append(cell);
+    }
+    const trail=(7-((lead+days)%7))%7;for(let i=0;i<trail;i++)cal.append(el("div",{class:"day pad","aria-hidden":"true"}));
+  }
+
+  function filteredLog(){const fe=$("fEmp").value,ft=$("fType").value;
+    return entriesForYear(state.year).filter(x=>empById(x.employeeId)&&(!fe||x.employeeId===fe)&&(!ft||x.type===ft)).sort((a,b)=>b.start.localeCompare(a.start))}
+  function renderLog(){
+    const box=$("log");box.replaceChildren();
+    const rows=filteredLog(),fe=$("fEmp").value,fo=fe?empById(fe):null;
+    $("logForBtn").textContent=fo?`Log time off for ${firstName(fo.name)}`:"Log time off";
+    if(!rows.length){
+      const msg=!state.employees.length?"Add a team member first, then log their time off.":(fo?`${fo.name} has no matching time off logged for ${state.year}.`:`No time off logged for ${state.year} yet.`);
+      box.append(el("div",{class:"empty"},el("div",{text:msg}),state.employees.length?el("button",{class:"btn primary wbtn",type:"button",text:fo?`Log time off for ${firstName(fo.name)}`:"Log time off",onclick:()=>openLog(fe||null)}):null));return;
+    }
+    const tbl=el("table");
+    tbl.append(el("thead",null,el("tr",null,el("th",{text:"Team member"}),el("th",{text:"Type"}),el("th",{text:"Dates"}),el("th",{class:"num",text:"Days"}),el("th",{text:"Note"}),el("th",null))));
+    const tb=el("tbody"),t=todayIso();
+    for(const x of rows){
+      const e=empById(x.employeeId),status=x.end<t?"":(x.start<=t?" (now)":" (upcoming)");
+      tb.append(el("tr",null,
+        el("td",{class:"emp-name",text:e.name}),el("td",null,el("span",{class:"pill "+tc(x.type),text:x.type})),
+        el("td",{style:"white-space:nowrap",text:fmtRange(x.start,x.end)+status}),el("td",{class:"num",text:fmtNum(Number(x.days)||0)}),
+        el("td",{class:"note",text:x.note||""}),
+        el("td",{class:"num",style:"white-space:nowrap"},
+          el("button",{class:"btn ghost wbtn",type:"button","aria-label":`Add more time off for ${e.name}`,text:"Add more",onclick:()=>openLog(x.employeeId,x.type)}),
+          el("button",{class:"btn ghost danger wbtn",type:"button","aria-label":`Delete ${e.name}'s ${x.type} entry`,text:"Delete",onclick:async()=>{if(confirm(`Delete ${e.name}'s ${x.type.toLowerCase()} on ${fmtRange(x.start,x.end)}?`)){if(await removeEntry(x.id))toast("Entry deleted")}}}))));
+    }
+    tbl.append(tb);box.append(tbl);
+  }
+
+  function renderEmpSelects(){
+    const s=sortedEmps();
+    const f=$("fEmp"),cur=f.value;f.replaceChildren(el("option",{value:"",text:"Everyone"}));s.forEach(e=>f.append(el("option",{value:e.id,text:e.name})));if(s.some(e=>e.id===cur))f.value=cur;
+    const l=$("lEmp"),lc=l.value;l.replaceChildren();s.forEach(e=>l.append(el("option",{value:e.id,text:e.name})));if(s.some(e=>e.id===lc))l.value=lc;
+    const rf=$("rfEmp"),rfc=rf.value;rf.replaceChildren(el("option",{value:"",text:"Everyone"}));s.forEach(e=>rf.append(el("option",{value:e.id,text:e.name})));if(s.some(e=>e.id===rfc))rf.value=rfc;
+    const r=$("rEmp"),rc=r.value;r.replaceChildren();s.forEach(e=>r.append(el("option",{value:e.id,text:e.name})));if(s.some(e=>e.id===rc))r.value=rc;
+  }
+  function renderYears(){
+    const y0=new Date().getFullYear(),ys=new Set([y0-1,y0,y0+1]);state.entries.forEach(x=>x.start&&ys.add(Number(x.start.slice(0,4))));
+    const sel=$("yearSel");sel.replaceChildren();[...ys].sort().forEach(y=>sel.append(el("option",{value:y,text:y})));sel.value=state.year;
+  }
+  function applyWriteState(){
+    document.querySelectorAll(".wbtn").forEach(b=>b.disabled=!canWrite);
+    $("addEmpBtn").disabled=!canWrite;
+    $("logBtn").disabled=$("logForBtn").disabled=$("rBtn").disabled=!canWrite||!state.employees.length;
+  }
+
+  /* ---------- working remote ---------- */
+  function filteredRemote(){const fe=$("rfEmp").value;
+    return state.remote.filter(x=>x.start&&x.start.slice(0,4)===String(state.year)&&empById(x.employeeId)&&(!fe||x.employeeId===fe)).sort((a,b)=>b.start.localeCompare(a.start))}
+  function renderRemote(){
+    const box=$("remoteLog");box.replaceChildren();
+    const rows=filteredRemote(),fe=$("rfEmp").value,fo=fe?empById(fe):null;
+    $("rBtn").textContent=fo?`Log remote day for ${firstName(fo.name)}`:"Log remote day";
+    if(!rows.length){box.append(el("div",{class:"empty"},el("div",{text:fo?`${fo.name} has no remote days logged for ${state.year}.`:`No remote days logged for ${state.year} yet.`})));return}
+    const tbl=el("table");
+    tbl.append(el("thead",null,el("tr",null,el("th",{text:"Team member"}),el("th",{text:"Type"}),el("th",{text:"Dates"}),el("th",{class:"num",text:"Workdays"}),el("th",{text:"Note"}),el("th",null))));
+    const tb=el("tbody"),t=todayIso();
+    for(const x of rows){
+      const e=empById(x.employeeId),status=x.end<t?"":(x.start<=t?" (now)":" (upcoming)");
+      tb.append(el("tr",null,
+        el("td",{class:"emp-name",text:e.name}),
+        el("td",null,el("span",{class:"pill "+(x.calledOut?"callout":"remote"),text:x.calledOut?"Called out, remote":"Remote"})),
+        el("td",{style:"white-space:nowrap",text:fmtRange(x.start,x.end)+status}),
+        el("td",{class:"num",text:String(bizDays(x.start,x.end))}),
+        el("td",{class:"note",text:x.note||""}),
+        el("td",{class:"num",style:"white-space:nowrap"},
+          el("button",{class:"btn ghost wbtn",type:"button","aria-label":`Add more remote days for ${e.name}`,text:"Add more",onclick:()=>openRemote(x.employeeId)}),
+          el("button",{class:"btn ghost danger wbtn",type:"button","aria-label":`Delete ${e.name}'s remote entry`,text:"Delete",onclick:async()=>{if(confirm(`Delete ${e.name}'s remote day${x.start===x.end?"":"s"} on ${fmtRange(x.start,x.end)}?`)){if(await removeRemote(x.id))toast("Remote entry deleted")}}}))));
+    }
+    tbl.append(tb);box.append(tbl);
+  }
+  function openRemote(empId){
+    if(!canWrite||!state.employees.length)return;
+    if(empId&&empById(empId))$("rEmp").value=empId;
+    const t=todayIso();$("rStart").value=t;$("rEnd").value=t;$("rCalled").checked=false;$("rNote").value="";$("rmErr").textContent="";
+    updateRmTitle();$("rmDlg").showModal();(empId?$("rStart"):$("rEmp")).focus();
+  }
+  function updateRmTitle(){const e=empById($("rEmp").value);$("rmTitle").textContent=e?`Log remote day for ${e.name}`:"Log remote day"}
+  $("rEmp").addEventListener("change",updateRmTitle);
+  $("rStart").addEventListener("change",()=>{const s=$("rStart").value,e=$("rEnd").value;if(s&&(!e||e<s))$("rEnd").value=s});
+  $("rBtn").addEventListener("click",()=>openRemote($("rfEmp").value||null));
+  $("rfEmp").addEventListener("change",()=>{renderRemote();applyWriteState()});
+  $("rmForm").addEventListener("submit",async ev=>{
+    if(ev.submitter&&ev.submitter.value==="cancel")return;
+    ev.preventDefault();
+    const employeeId=$("rEmp").value,start=$("rStart").value,end=$("rEnd").value,calledOut=$("rCalled").checked,note=$("rNote").value.trim();
+    if(!employeeId){$("rmErr").textContent="Choose a team member.";return}
+    if(!start||!end||end<start){$("rmErr").textContent="The last day must be on or after the first day.";return}
+    const again=ev.submitter&&ev.submitter.value==="again";
+    if(await addRemote({employeeId,start,end,calledOut,note,createdAt:new Date().toISOString()})){
+      if(again){let n=addDays(end,1);while(!isWeekday(parse(n)))n=addDays(n,1);$("rStart").value=n;$("rEnd").value=n;$("rCalled").checked=false;$("rNote").value="";$("rmErr").textContent="";$("rStart").focus();toast("Remote day saved");return}
+      $("rmDlg").close();toast("Remote day logged");
+    }
+  });
+
+  /* ---------- team member dialog ---------- */
+  function buildHours(schedule){
+    const box=$("eHours");box.replaceChildren();
+    for(const k of DAY_KEYS){
+      const s=schedule[k];
+      const cb=el("input",{type:"checkbox",id:`h_${k}_on`});cb.checked=!!s;
+      const st=el("input",{type:"time",id:`h_${k}_s`,"aria-label":`${DAY_LABEL[k]} start`});st.value=s?s.start:"08:00";
+      const en=el("input",{type:"time",id:`h_${k}_e`,"aria-label":`${DAY_LABEL[k]} end`});en.value=s?s.end:"16:30";
+      st.disabled=en.disabled=!s;cb.addEventListener("change",()=>{st.disabled=en.disabled=!cb.checked});
+      box.append(el("div",{class:"hrow"},el("label",{class:"hday"},cb,el("span",{text:DAY_LABEL[k]})),st,el("span",{class:"to",text:"to"}),en));
+    }
+  }
+  function readHours(){
+    const out={};
+    for(const k of DAY_KEYS){
+      if(!$(`h_${k}_on`).checked){out[k]=null;continue}
+      const s=$(`h_${k}_s`).value,e=$(`h_${k}_e`).value;
+      if(!s||!e)return {error:`Enter a start and end time for ${DAY_LABEL[k]}, or uncheck it.`};
+      if(s===e)return {error:`${DAY_LABEL[k]} start and end times can't be the same.`};
+      out[k]={start:s,end:e};
+    }
+    return {schedule:out};
+  }
+  $("copyMon").addEventListener("click",()=>{const on=$("h_mon_on").checked,s=$("h_mon_s").value,e=$("h_mon_e").value;
+    for(const k of ["tue","wed","thu","fri"]){$(`h_${k}_on`).checked=on;$(`h_${k}_s`).value=s;$(`h_${k}_e`).value=e;$(`h_${k}_s`).disabled=$(`h_${k}_e`).disabled=!on}});
+  function openEmp(id,focusHours){
+    if(!canWrite)return;
+    state.editingEmp=id;const e=id?empById(id):null;
+    $("empTitle").textContent=e?`Edit ${e.name}`:"Add team member";
+    $("empSave").textContent=e?"Save changes":"Save team member";
+    $("eName").value=e?e.name:"";$("eRole").value=e?(e.role||""):"";$("eAllow").value=e?allowanceOf(e):15;
+    $("allowField").hidden=!state.isAdmin;
+    buildHours(e?schedOf(e):DEFAULT_SCHED);
+    $("empDel").hidden=!e||!state.isAdmin;$("empErr").textContent="";
+    $("empDlg").showModal();
+    if(focusHours){$("eHours").closest("fieldset").scrollIntoView({block:"center"});$("h_mon_on").focus()}else $("eName").focus();
+  }
+  $("empForm").addEventListener("submit",async ev=>{
+    if(ev.submitter&&ev.submitter.value==="cancel")return;
+    ev.preventDefault();
+    const name=$("eName").value.trim(),role=$("eRole").value.trim(),allowance=Number($("eAllow").value),h=readHours();
+    if(!name){$("empErr").textContent="Enter a name.";return}
+    if(state.isAdmin&&!(allowance>=0)){$("empErr").textContent="Allowance must be 0 or more days.";return}
+    if(h.error){$("empErr").textContent=h.error;return}
+    const editing=state.editingEmp;
+    const al=state.isAdmin?allowance:null;
+    const ok=editing?await updateEmployee(editing,{name,role,schedule:h.schedule},al):await addEmployee({name,role,schedule:h.schedule,createdAt:new Date().toISOString()},al??0);
+    if(ok){$("empDlg").close();toast(editing?"Changes saved":"Team member added")}
+  });
+  $("empDel").addEventListener("click",async()=>{
+    const e=empById(state.editingEmp);if(!e)return;
+    const n=state.entries.filter(x=>x.employeeId===e.id).length;
+    if(!confirm(`Remove ${e.name}${n?` and their ${n} time off ${n===1?"entry":"entries"}`:""}? Their schedule changes are removed too. This can't be undone.`))return;
+    if(await removeEmployee(e.id)){$("empDlg").close();toast("Team member removed")}
+  });
+
+  /* ---------- shift dialog ---------- */
+  function shiftMode(){return document.querySelector('input[name="smode"]:checked').value}
+  function shiftScope(){return document.querySelector('input[name="sscope"]:checked').value}
+  function syncShiftMode(){
+    const every=shiftScope()==="every";
+    $("regLabel").hidden=every;
+    if(every&&shiftMode()==="regular")document.querySelector('input[name="smode"][value="custom"]').checked=true;
+    $("customLbl").textContent=every?"Works these hours":"Different hours";
+    $("sNote").closest(".field").hidden=every;
+    const c=shiftMode()==="custom";$("sStart").disabled=$("sEnd").disabled=!c;$("shiftTimes").style.opacity=c?1:.5;
+  }
+  document.querySelectorAll('input[name="smode"],input[name="sscope"]').forEach(r=>r.addEventListener("change",syncShiftMode));
+  function openShift(empId,date){
+    if(!canWrite)return;
+    const emp=empById(empId);if(!emp)return;state.shiftCtx={empId,date};
+    $("shiftTitle").textContent=`${emp.name}, ${longDate(date)}`;
+    const reg=regularFor(emp,date),ov=state.shiftMap.get(empId+"|"+date);
+    $("shiftRegular").textContent=reg?`Regular hours: ${fmtHours(reg)}`:"Not normally scheduled this day.";
+    const mode=ov?(ov.off?"off":"custom"):"regular";
+    document.querySelector(`input[name="smode"][value="${mode}"]`).checked=true;
+    document.querySelector('input[name="sscope"][value="day"]').checked=true;
+    const wd=parse(date).toLocaleDateString(undefined,{weekday:"long"});
+    $("scopeDay").textContent=`Just ${fmtDate(date)}`;$("scopeEvery").textContent=`Every ${wd} (changes regular hours)`;
+    const times=ov&&!ov.off?ov:(reg||{start:"08:00",end:"16:30"});
+    $("sStart").value=times.start;$("sEnd").value=times.end;$("sNote").value=ov?(ov.note||""):"";
+    const pto=state.away.find(x=>x.employeeId===empId&&x.start<=date&&x.end>=date);
+    $("shiftPto").textContent=pto?`${firstName(emp.name)} is out this day (${fmtRange(pto.start,pto.end)}).${state.isAdmin?" Manage it on the Time off tab.":""}`:"";
+    $("shiftPto").hidden=!pto;$("shiftErr").textContent="";
+    syncShiftMode();$("shiftDlg").showModal();
+  }
+  $("shiftForm").addEventListener("submit",async ev=>{
+    if(ev.submitter&&ev.submitter.value==="cancel")return;
+    ev.preventDefault();
+    const {empId,date}=state.shiftCtx,mode=shiftMode(),note=$("sNote").value.trim();
+    let ok;
+    if(shiftScope()==="every"){
+      const emp=empById(empId),key=JS_DAY[parse(date).getDay()],sched={...schedOf(emp)};
+      if(mode==="off")sched[key]=null;
+      else{const s=$("sStart").value,e=$("sEnd").value;
+        if(!s||!e){$("shiftErr").textContent="Enter a start and end time.";return}
+        if(s===e){$("shiftErr").textContent="Start and end times can't be the same.";return}
+        sched[key]={start:s,end:e}}
+      ok=await updateEmployee(empId,{schedule:sched});
+      if(ok&&state.shiftMap.has(empId+"|"+date))ok=await clearShift(empId,date);
+      if(ok){$("shiftDlg").close();toast(`${firstName(emp.name)}'s regular ${parse(date).toLocaleDateString(undefined,{weekday:"long"})} hours updated`)}
+      return;
+    }
+    if(mode==="regular"){ok=state.shiftMap.has(empId+"|"+date)?await clearShift(empId,date):true}
+    else if(mode==="off"){ok=await setShift(empId,date,{off:true,start:null,end:null,note})}
+    else{const s=$("sStart").value,e=$("sEnd").value;
+      if(!s||!e){$("shiftErr").textContent="Enter a start and end time.";return}
+      if(s===e){$("shiftErr").textContent="Start and end times can't be the same.";return}
+      ok=await setShift(empId,date,{off:false,start:s,end:e,note})}
+    if(ok){$("shiftDlg").close();toast("Hours saved")}
+  });
+
+  /* ---------- time off dialog ---------- */
+  function openLog(empId,type){
+    if(!canWrite||!state.employees.length)return;
+    if(empId&&empById(empId))$("lEmp").value=empId;
+    const t=todayIso();$("lStart").value=t;$("lEnd").value=t;$("lDays").value=bizDays(t,t)||1;$("lNote").value="";$("lType").value=type||"Vacation";$("logErr").textContent="";
+    updateLogTitle();checkOverlap();$("logDlg").showModal();(empId?$("lType"):$("lEmp")).focus();
+  }
+  function updateLogTitle(){const e=empById($("lEmp").value);$("logTitle").textContent=e?`Log time off for ${e.name}`:"Log time off"}
+  function remainingNote(id){const e=empById(id);if(!e)return"";return `${firstName(e.name)} has ${fmtNum(balanceFor(e).remaining)} days remaining in ${state.year}.`}
+  function syncDays(){const s=$("lStart").value,e=$("lEnd").value;if(s&&(!e||e<s))$("lEnd").value=s;$("lDays").value=bizDays($("lStart").value,$("lEnd").value);checkOverlap()}
+  function checkOverlap(){
+    const s=$("lStart").value,e=$("lEnd").value,me=$("lEmp").value,w=$("overlap");
+    if(!s||!e){w.hidden=true;return}
+    const others=state.entries.filter(x=>x.employeeId!==me&&x.start<=e&&x.end>=s&&empById(x.employeeId));
+    const mine=state.entries.filter(x=>x.employeeId===me&&x.start<=e&&x.end>=s);
+    const parts=[];
+    if(mine.length)parts.push("This person already has time off logged on some of these dates.");
+    if(others.length)parts.push("Also out during these dates: "+[...new Set(others.map(x=>empById(x.employeeId).name))].join(", ")+".");
+    w.textContent=parts.join(" ");w.hidden=!parts.length;
+  }
+  $("lStart").addEventListener("change",syncDays);$("lEnd").addEventListener("change",syncDays);
+  $("lEmp").addEventListener("change",()=>{updateLogTitle();checkOverlap()});
+  $("logForm").addEventListener("submit",async ev=>{
+    if(ev.submitter&&ev.submitter.value==="cancel")return;
+    ev.preventDefault();
+    const employeeId=$("lEmp").value,type=$("lType").value,start=$("lStart").value,end=$("lEnd").value,days=Number($("lDays").value),note=$("lNote").value.trim();
+    if(!employeeId){$("logErr").textContent="Choose a team member.";return}
+    if(!start||!end||end<start){$("logErr").textContent="The last day off must be on or after the first day.";return}
+    if(!(days>0)){$("logErr").textContent="Days charged must be more than 0. Weekends aren't counted.";return}
+    const again=ev.submitter&&ev.submitter.value==="again";
+    if(await addEntry({employeeId,type,start,end,days,note,createdAt:new Date().toISOString()})){
+      if(again){let n=addDays(end,1);while(!isWeekday(parse(n)))n=addDays(n,1);
+        $("lStart").value=n;$("lEnd").value=n;$("lDays").value=1;$("lNote").value="";$("logErr").textContent="";checkOverlap();$("lStart").focus();
+        toast("Saved. "+remainingNote(employeeId));return}
+      $("logDlg").close();toast("Time off logged. "+remainingNote(employeeId));
+      const y=Number(start.slice(0,4));if(y!==state.year){state.year=y;renderYears();render()}
+    }
+  });
+
+  /* ---------- export ---------- */
+  $("csvBtn").addEventListener("click",async()=>{
+    const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+    const lines=[["Team member","Role","Type","First day","Last day","Days","Note"].map(q).join(",")];
+    for(const x of filteredLog()){const e=empById(x.employeeId);lines.push([e.name,e.role||"",x.type,x.start,x.end,x.days,x.note||""].map(q).join(","))}
+    lines.push("");lines.push(["Team member","Allowance","Taken","Scheduled","Remaining"].map(q).join(","));
+    for(const e of sortedEmps()){const b=balanceFor(e);lines.push([e.name,b.allow,b.taken,b.sched,b.remaining].map(q).join(","))}
+    lines.push("");lines.push(["Working remote","Type","First day","Last day","Workdays","Note"].map(q).join(","));
+    for(const x of filteredRemote()){const e=empById(x.employeeId);lines.push([e.name,x.calledOut?"Called out, remote":"Remote",x.start,x.end,bizDays(x.start,x.end),x.note||""].map(q).join(","))}
+    const csv=lines.join("\n");
+    if(downloads){try{await downloads.save({filename:`it-pto-${state.year}.csv`,data:csv})}
+      catch(e){if(e&&e.code==="declined")return;if(e&&e.code==="rate_limited"){toast("A save prompt is already open.");return}toast("Export isn't available here.")}}
+    else{try{await navigator.clipboard.writeText(csv);toast("CSV copied to clipboard")}catch(_){toast("Export isn't available in this view.")}}
+  });
+
+  /* ---------- tabs & wiring ---------- */
+  function showTab(name){
+    const pto=name==="pto";$("pSched").hidden=pto;$("pPto").hidden=!pto;
+    $("tabSched").setAttribute("aria-selected",String(!pto));$("tabPto").setAttribute("aria-selected",String(pto));
+    try{localStorage.setItem("it-sched-tab",name)}catch(_){}
+  }
+  $("tabSched").addEventListener("click",()=>showTab("sched"));$("tabPto").addEventListener("click",()=>showTab("pto"));
+  document.querySelector(".tabs").addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key==="ArrowLeft"){const toPto=$("tabSched").getAttribute("aria-selected")==="true";showTab(toPto?"pto":"sched");(toPto?$("tabPto"):$("tabSched")).focus()}});
+  try{if(localStorage.getItem("it-sched-tab")==="pto")showTab("pto")}catch(_){}
+
+  $("addEmpBtn").addEventListener("click",()=>openEmp(null));
+  $("logBtn").addEventListener("click",()=>openLog($("fEmp").value||null));
+  $("logForBtn").addEventListener("click",()=>openLog($("fEmp").value||null));
+  $("yearSel").addEventListener("change",e=>{state.year=Number(e.target.value);render()});
+  $("fEmp").addEventListener("change",()=>{renderLog();applyWriteState()});$("fType").addEventListener("change",()=>{renderLog();applyWriteState()});
+  $("prevM").addEventListener("click",()=>{const m=state.calMonth;state.calMonth=new Date(m.getFullYear(),m.getMonth()-1,1);renderCalendar()});
+  $("nextM").addEventListener("click",()=>{const m=state.calMonth;state.calMonth=new Date(m.getFullYear(),m.getMonth()+1,1);renderCalendar()});
+  $("thisM").addEventListener("click",()=>{state.calMonth=firstOfMonth(new Date());renderCalendar()});
+  function moveWeek(n){state.weekStart=addDays(state.weekStart,n*7);const sel=state.selDay;if(sel<state.weekStart||sel>addDays(state.weekStart,6))state.selDay=state.weekStart===mondayOf(todayIso())?todayIso():state.weekStart;renderSchedule();renderTimeline();applyWriteState()}
+  $("prevW").addEventListener("click",()=>moveWeek(-1));$("nextW").addEventListener("click",()=>moveWeek(1));
+  $("thisW").addEventListener("click",()=>{state.weekStart=mondayOf(todayIso());state.selDay=todayIso();renderSchedule();renderTimeline();applyWriteState()});
+
+  setInterval(()=>{renderToday();if(state.selDay===todayIso())renderTimeline()},60000);
+
+  renderYears();render();
+
+  /* ---------- shared storage ---------- */
+  (async()=>{
+    const use=window.claude&&typeof window.claude.use==="function"?n=>window.claude.use(n):async()=>null;
+    const [dbNs,userNs,dlNs]=await Promise.all([use("db"),use("user"),use("downloads")]);
+    downloads=dlNs;
+    if(!dbNs){state.isAdmin=true;state.accessKnown=true;render();notice("Shared saving isn't available in this view, so changes last only until you close the page.");return}
+    db=dbNs;live=true;
+    if(userNs){try{if(await userNs.can("data.write")===false){canWrite=false;notice("You can view this tracker but not change it. Ask the owner for Contributor access.")}}catch(_){}
+      try{state.isAdmin=(await userNs.canEdit())===true||(await userNs.isOwner())===true}catch(_){state.isAdmin=false}}
+    state.accessKnown=true;render();
+    applyWriteState();
+    const lost=()=>notice("Lost connection to the shared tracker. Reload the page to reconnect.");
+    db.collection("employees").onSnapshot(s=>{state.employees=s.docs.map(d=>({id:d.id,...d.data()}));render()},lost);
+    db.collection("away").onSnapshot(s=>{state.away=s.docs.map(d=>({id:d.id,...d.data()}));render()},lost);
+    if(state.isAdmin){
+      db.collection(PTO).onSnapshot(s=>{state.entries=s.docs.map(d=>({id:d.id,...d.data()}));renderYears();render()},lost);
+      db.collection(ALLOW).onSnapshot(s=>{state.allowances=new Map(s.docs.map(d=>[d.id,Number(d.data().allowance)||0]));render()},lost);
+    }
+    db.collection("remote").onSnapshot(s=>{state.remote=s.docs.map(d=>({id:d.id,...d.data()}));render()},lost);
+    db.collection("shifts").onSnapshot(s=>{setShifts(s.docs.map(d=>({id:d.id,...d.data()})));render()},lost);
+  })();
+})();
+</script>
+</body>
+</html>
